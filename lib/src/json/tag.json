@@ -1,0 +1,10 @@
+{
+  "@class": "tag",
+  "@isPublic: true",
+  "@rows": 8,
+  "@names": ["code", "keyword", "name", "vr", "vmMin", "vmMax", "vmRank", "eType", "ieLevel", "isRetired"],
+  "@types": ["int", "string", "string", "vr", "int", "int", "int", "int", "int", "bool"],
+  "@values":  [
+     []
+   ]
+}
