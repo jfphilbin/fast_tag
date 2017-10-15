@@ -8,7 +8,11 @@
 export 'src/de_id_method.dart';
 export 'src/etype.dart';
 export 'src/ie.dart';
+export 'src/internal/tag_full.dart';
+export 'src/issues.dart';
 export 'src/tag.dart';
-export 'src/value_issues.dart';
+export 'src/tag_array.dart';
 export 'src/vm.dart';
 export 'src/vr.dart';
+
+export 'tag.dart';

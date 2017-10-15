@@ -13,32 +13,30 @@ void main() {
   Server.initialize(name: 'gen_tag_codes.dart', level: Level.info0);
 
   // Generate Codes
-  var heading = createHeading();
-  var code =
-      'int tagCodeToIndex(int code) => binarySearch(sortedCodes, code);\n\n';
+  final heading = createHeading();
+  var code = 'int tagCodeToIndex(int code) => binarySearch(sortedCodes, code);\n\n';
 
-  List<int> codeList = publicCodeListByIndex();
-  List<String> hexStrings = codeListToHexList(codeList);
+  final codeList = publicCodeListByIndex();
+  final hexStrings = codeListToHexList(codeList);
   var byIndex = genTagCodesByIndex(hexStrings);
   var sorted = genSortedTagCodes(hexStrings);
   log.debug(sorted);
-  var out = heading + code + byIndex + sorted;
-  var f = new File('C:/poplar_hill/fast_tag/bin/output/codes.dart');
-  f.writeAsStringSync(out);
+  var out = '$heading$code$byIndex$sorted';
+  new File('C:/poplar_hill/fast_tag/bin/output/codes.dart')..writeAsStringSync(out);
 
   // Generate Code Strings
   code = 'int tagCodeStringToIndex(int code) => '
       'binarySearch(sortedCodeStrings, code);\n\n';
 
-  List<String> strings = codeListToQuotedCodeList(codeList);
+  final strings = codeListToQuotedCodeList(codeList);
   byIndex = genTagCodeStringsByIndex(strings);
   sorted = genSortedTagCodeStrings(codeListToQuotedCodeList(codeList));
   log.debug(sorted);
 
-  out = heading + code + byIndex + sorted;
+  out = '$heading$code$byIndex$sorted';
 
-  f = new File('C:/poplar_hill/fast_tag/bin/output/code_strings.dart');
-  f.writeAsStringSync(out);
+  new File('C:/poplar_hill/fast_tag/bin/output/code_strings.dart')
+    ..writeAsStringSync(out);
 
   //out = fmtDart(out);
   // writeCodeFile('C:/poplar_hill/fast_tag/bin/output/code_strings.dart', out);

@@ -35,11 +35,11 @@ class ETypeX {
   @override
   String toString() => '$runtimeType.$name';
 
-  static const ETypeX k1 = const ETypeX(0, "1", "RequiredNonEmpty");
-  static const ETypeX k1c = const ETypeX(1, "1C", "ConditionallyRequiredNonEmpty");
-  static const ETypeX k2 = const ETypeX(2, "2", "Required");
-  static const ETypeX k2c = const ETypeX(3, "2C", "ConditionallyRequired");
-  static const ETypeX k3 = const ETypeX(4, "3", "Optional");
+  static const ETypeX k1 = const ETypeX(0, '1', 'RequiredNonEmpty');
+  static const ETypeX k1c = const ETypeX(1, '1C', 'ConditionallyRequiredNonEmpty');
+  static const ETypeX k2 = const ETypeX(2, '2', 'Required');
+  static const ETypeX k2c = const ETypeX(3, '2C', 'ConditionallyRequired');
+  static const ETypeX k3 = const ETypeX(4, '3', 'Optional');
 
   static const List<ETypeX> byIndex = const [k1, k1c, k2, k2c, k3];
 

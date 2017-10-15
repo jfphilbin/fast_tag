@@ -9,7 +9,7 @@ import 'package:string/string.dart';
 import 'package:system/system.dart';
 
 import 'package:fast_tag/src/item.dart';
-import 'package:fast_tag/src/value_issues.dart';
+import 'package:fast_tag/src/issues.dart';
 
 abstract class VRx<T> {
   /// The [keyword] for [this].
@@ -33,10 +33,10 @@ abstract class VRx<T> {
 
   bool isValidVR(VRx vr);
 
-  bool isValid(T value, [ValueIssues issues, VRx vr]) =>
+  bool isValid(T value, [Issues issues, VRx vr]) =>
       isValidVR(vr) && vr.isValid(value);
 
-  bool isNotValid(T value, [ValueIssues issues, VRx vr]) =>
+  bool isNotValid(T value, [Issues issues, VRx vr]) =>
       !isValid(value, issues, vr);
 
   @override
@@ -85,7 +85,7 @@ abstract class VRx<T> {
   static const int kMaxIndex = 30;
   static const int kMaxSpecialIndex = 36;
 
-  static const List<VRx> kByAlphabeticIndex = const <VRx>[
+  static const List<VRx> kByIndex = const <VRx>[
     kAE, kAS, kAT, kCS, kDA, kDS, kDT, kFD,
     kFL, kIS, kLO, kLT, kOB, kOD, kOF, kOL,
     kOW, kPN, kSH, kSL, kSQ, kSS, kST, kTM,
@@ -94,8 +94,13 @@ abstract class VRx<T> {
     kOBOW, kUSSS, kUSSSOW, kUSOW, kUSOW1
   ];
 
+  static VRx kVRFromIndex(int index) {
+  	RangeError.checkValidIndex(index, kByIndex);
+	  return kByIndex[index];
+  }
+
   /// VR codes in sorted order from min to max;
-  static const List<VRx> bySortedCodeIndex = const <VRx>[
+  static const List<VRx> kBySortedCodeIndex = const <VRx>[
     kDA, kOB, kUC, kFD, kOD, kAE, kOF, kSH,
     kUI, kFL, kOL, kSL, kUL, kTM, kPN, kUN,
     kLO, kSQ, kUR, kAS, kCS, kDS, kIS, kSS,
@@ -106,7 +111,7 @@ abstract class VRx<T> {
   static const int kMaxCode = 0x5455;
 
   /// VR codes in sorted order from min to max;
-  static const List<int> codes = const <int>[
+  static const List<int> kCodes = const <int>[
     0x4541, 0x5341, 0x5441, 0x5343, 0x4144, 0x5344, 0x5444, 0x4446,
     0x4c46, 0x5349, 0x4f4c, 0x544c, 0x424f, 0x444f, 0x464f, 0x4c4f,
     0x574f, 0x4e50, 0x4853, 0x4c53, 0x5153, 0x5353, 0x5453, 0x4d54,
@@ -114,7 +119,7 @@ abstract class VRx<T> {
   ];
 
   /// VR codes in sorted order from min to max;
-  static const List<int> sortedCodes = const <int>[
+  static const List<int> kSortedCodes = const <int>[
     0x4144, 0x424f, 0x4355, 0x4446, 0x444f, 0x4541, 0x464f, 0x4853,
     0x4955, 0x4c46, 0x4c4f, 0x4c53, 0x4c55, 0x4d54, 0x4e50, 0x4e55,
     0x4f4c, 0x5153, 0x5255, 0x5341, 0x5343, 0x5344, 0x5349, 0x5353,
@@ -122,15 +127,17 @@ abstract class VRx<T> {
   ];
 
   /// Returns the index of the VRCode as a 16-bit Little Endian number.
-  static int codeToSortedIndex(int code) => binarySearch(sortedCodes, code);
+  static int codeToIndex(int code) => binarySearch(kSortedCodes, code);
+  static bool isValidCode(int code) => codeToIndex(code) != null;
+  static VRx codeToVR(int code) => kVRFromIndex(codeToIndex(code));
 
   static const List<String> keywords = const <String>[
-    "AE", "AS", "AT", "CS", "DA", "DS", "DT", "FD",
-    "FL", "IS", "LO", "LT", "OB", "OD", "OF", "OL",
-    "OW", "PN", "SH", "SL", "SQ", "SS", "ST", "TM",
-    "UC", "UI", "UL", "UN", "UR", "US", "UT",
+    'AE', 'AS', 'AT', 'CS', 'DA', 'DS', 'DT', 'FD',
+    'FL', 'IS', 'LO', 'LT', 'OB', 'OD', 'OF', 'OL',
+    'OW', 'PN', 'SH', 'SL', 'SQ', 'SS', 'ST', 'TM',
+    'UC', 'UI', 'UL', 'UN', 'UR', 'US', 'UT',
     // No reformat
-    "OBOW", "USSS", "USSSOW", "USOW", "USOW1"
+    'OBOW', 'USSS', 'USSSOW', 'USOW', 'USOW1'
   ];
 
   /// Returns the index of the VRCode as a 16-bit Little Endian number.
@@ -148,7 +155,7 @@ abstract class VRx<T> {
     0x5453: kST, 0x5455: kUT, 0x574f: kOW // No reformat
   };
 
-  static const Map<int, VRx> codeToVR = const <int, VRx>{
+  static const Map<int, VRx> codeToVRMap = const <int, VRx>{
     0x4541: kAE, 0x5341: kAS, 0x5441: kAT, 0x5343: kCS,
     0x4144: kDA, 0x5344: kDS, 0x5444: kDT, 0x4446: kFD,
     0x4c46: kFL, 0x5349: kIS, 0x4f4c: kLO, 0x544c: kLT,
@@ -159,20 +166,21 @@ abstract class VRx<T> {
     0x5255: kUR, 0x5355: kUS, 0x5455: kUT // stop reformat
   };
 
-  VRx lookup(int vrCode) => codeToVR[vrCode];
+  //TODO: compare the performance of this to [codeToVR]. Pick one.
+  VRx vrFromCode(int vrCode) => codeToVRMap[vrCode];
 
   static const Map<String, VRx> keywordToVR = const <String, VRx>{
-    "AE": kAE, "AS": kAS, "AT": kAT, "CS": kCS,
-    "DA": kDA, "DS": kDS, "DT": kDT, "FD": kFD,
-    "FL": kFL, "IS": kIS, "LO": kLO, "LT": kLT,
-    "OB": kOB, "OD": kOD, "OF": kOF, "OL": kOL,
-    "OW": kOW, "PN": kPN, "SH": kSH, "SL": kSL,
-    "SQ": kSQ, "SS": kSS, "ST": kST, "TM": kTM,
-    "UC": kUC, "UI": kUI, "UL": kUL, "UN": kUN,
-    "UR": kUR, "US": kUS, "UT": kUT,
+    'AE': kAE, 'AS': kAS, 'AT': kAT, 'CS': kCS,
+    'DA': kDA, 'DS': kDS, 'DT': kDT, 'FD': kFD,
+    'FL': kFL, 'IS': kIS, 'LO': kLO, 'LT': kLT,
+    'OB': kOB, 'OD': kOD, 'OF': kOF, 'OL': kOL,
+    'OW': kOW, 'PN': kPN, 'SH': kSH, 'SL': kSL,
+    'SQ': kSQ, 'SS': kSS, 'ST': kST, 'TM': kTM,
+    'UC': kUC, 'UI': kUI, 'UL': kUL, 'UN': kUN,
+    'UR': kUR, 'US': kUS, 'UT': kUT,
     // prevent reformat
-    "OBOW": kOBOW, "USSS": kUSSS, "USSSOW": kUSSSOW,
-    "USOW": kUSOW, "USOW1": kUSOW1
+    'OBOW': kOBOW, 'USSS': kUSSS, 'USSSOW': kUSSSOW,
+    'USOW': kUSOW, 'USOW1': kUSOW1
   };
 }
 
@@ -199,7 +207,7 @@ class VRStandard<T> extends VRx<T> {
   bool isValidVR(VRx vr) => true;
 
   @override
-  bool isValid(T value, [ValueIssues issues, VRx vr]) => false;
+  bool isValid(T value, [Issues issues, VRx vr]) => false;
 }
 
 class VRFloat extends VRStandard<double> {
@@ -211,7 +219,7 @@ class VRFloat extends VRStandard<double> {
   bool get isFloat => true;
 
   @override
-  bool isValid(Object value, [ValueIssues issues, VRx vr]) =>
+  bool isValid(Object value, [Issues issues, VRx vr]) =>
       (value is double) ? true : invalidValue(value, issues);
 
   static const VRStandard kFD =
@@ -236,29 +244,29 @@ class VRInt extends VRStandard<int> {
   bool get isInteger => true;
 
   @override
-  bool isValid(Object value, [ValueIssues issues, VRx vr]) =>
+  bool isValid(Object value, [Issues issues, VRx vr]) =>
       (value is int && value >= minValue && value <= maxValue)
           ? true
           : invalidValue(this, value);
 
   static const VRStandard kAT = const VRInt._(
-      "AT", 0x5441, 2, kMaxShortVF, 4, kUint32Min, kUint32Max, 25);
+      'AT', 0x5441, 2, kMaxShortVF, 4, kUint32Min, kUint32Max, 25);
   static const VRStandard kOB =
-      const VRInt._("OB", 0x424f, 12, kMaxLongVF, 1, kUint8Min, kUint8Max, 1);
+      const VRInt._('OB', 0x424f, 12, kMaxLongVF, 1, kUint8Min, kUint8Max, 1);
   static const VRStandard kOL = const VRInt._(
-      "OL", 0x4c4f, 15, kMaxLongVF, 4, kUint32Min, kUint32Max, 10);
+      'OL', 0x4c4f, 15, kMaxLongVF, 4, kUint32Min, kUint32Max, 10);
   static const VRStandard kOW = const VRInt._(
-      "OW", 0x574f, 16, kMaxLongVF, 2, kUint16Min, kUint16Max, 30);
+      'OW', 0x574f, 16, kMaxLongVF, 2, kUint16Min, kUint16Max, 30);
   static const VRStandard kSL =
-      const VRInt._("SL", 0x4c53, 19, kMaxShortVF, 4, kInt32Min, kInt32Max, 11);
+      const VRInt._('SL', 0x4c53, 19, kMaxShortVF, 4, kInt32Min, kInt32Max, 11);
   static const VRStandard kSS =
-      const VRInt._("SS", 0x5353, 21, kMaxShortVF, 2, kInt16Min, kInt16Max, 23);
+      const VRInt._('SS', 0x5353, 21, kMaxShortVF, 2, kInt16Min, kInt16Max, 23);
   static const VRStandard kUL = const VRInt._(
-      "UL", 0x4c55, 26, kMaxShortVF, 4, kUint32Min, kUint32Max, 12);
+      'UL', 0x4c55, 26, kMaxShortVF, 4, kUint32Min, kUint32Max, 12);
   static const VRStandard kUN =
-      const VRInt._("UN", 0x4e55, 27, kMaxLongVF, 1, kUint8Min, kUint8Max, 15);
+      const VRInt._('UN', 0x4e55, 27, kMaxLongVF, 1, kUint8Min, kUint8Max, 15);
   static const VRStandard kUS = const VRInt._(
-      "US", 0x5355, 29, kMaxShortVF, 2, kUint16Min, kUint16Max, 24);
+      'US', 0x5355, 29, kMaxShortVF, 2, kUint16Min, kUint16Max, 24);
 }
 
 typedef bool _StringValidator(String s);
@@ -276,7 +284,7 @@ class VRString extends VRStandard<String> {
       : super._(keyword, code, index, 1, maxVFLength, sortIndex);
 
   @override
-  bool isValid(String s, [ValueIssues issues, VRx vr]) =>
+  bool isValid(String s, [Issues issues, VRx vr]) =>
       //Urgent: verify that validator checks length.
       (validator(s)) ? true : invalidValue(this, s);
 
@@ -325,7 +333,7 @@ class VRSequence extends VRStandard<Item> {
       : super._(keyword, code, index, 1, maxVFLength, sortIndex);
 
   @override
-  bool isValid(Object item, [ValueIssues issues, VRx vr]) =>
+  bool isValid(Object item, [Issues issues, VRx vr]) =>
       (item is Item) ? true : invalidValue(this, item, issues);
 
   static const VRSequence kSQ =
@@ -355,38 +363,38 @@ class VRSpecial extends VRx<int> {
   bool isValidVR(VRx vr) => vrList.contains(vr);
 
   @override
-  bool isValid(int value, [ValueIssues issues, VRx vr]) =>
+  bool isValid(int value, [Issues issues, VRx vr]) =>
       (isValidVR(vr) && vr.isValid(value, issues))
           ? true
           : invalidValue(vr, value, issues);
 
   static const VRSpecial kOBOW =
-      const VRSpecial._("OBOW", 31, const [VRx.kOB, VRx.kOW]);
+      const VRSpecial._('OBOW', 31, const [VRx.kOB, VRx.kOW]);
 
   static const VRSpecial kUSSS =
-      const VRSpecial._("USSS", 32, const [VRx.kUS, VRx.kSS]);
+      const VRSpecial._('USSS', 32, const [VRx.kUS, VRx.kSS]);
 
   static const VRSpecial kUSSSOW =
-      const VRSpecial._("kSSSOW", 32, const [VRx.kUS, VRx.kSS, VRx.kOW]);
+      const VRSpecial._('kSSSOW', 32, const [VRx.kUS, VRx.kSS, VRx.kOW]);
 
   static const VRSpecial kUSOW =
-      const VRSpecial._("kUSOW", 33, const [VRx.kUS, VRx.kOW]);
+      const VRSpecial._('kUSOW', 33, const [VRx.kUS, VRx.kOW]);
 
   static const VRSpecial kUSOW1 =
-      const VRSpecial._("kSSSOW", 34, const [VRx.kUS, VRx.kOW]);
+      const VRSpecial._('kSSSOW', 34, const [VRx.kUS, VRx.kOW]);
 }
 
 class InvalidVRError extends Error {
   Object value;
   String msg;
 
-  InvalidVRError(this.value, [this.msg = ""]);
+  InvalidVRError(this.value, [this.msg = '']);
 }
 
-Null invalidVRError(VRx vr, Object value, [ValueIssues issues]) {
-  var msg = 'Invalid VR.k$keyword value: $value';
+Null invalidVRError(VRx vr, Object value, [Issues issues]) {
+  final msg = 'Invalid VR.k$keyword value: $value';
   log.error(msg);
-  if (issues != null) issues.add(vr, value, msg);
+  if (issues != null) issues.add(msg);
   if (throwOnError) throw new InvalidFloatValueError(value, msg);
   return null;
 }
@@ -395,13 +403,13 @@ class InvalidValueError extends Error {
   Object value;
   String msg;
 
-  InvalidValueError(this.value, [this.msg = ""]);
+  InvalidValueError(this.value, [this.msg = '']);
 }
 
-Null invalidValue(VRx vr, Object value, [ValueIssues issues]) {
-  var msg = 'Invalid VR.k$keyword value: $value';
+Null invalidValue(VRx vr, Object value, [Issues issues]) {
+  final msg = 'Invalid VR.k$keyword value: $value';
   log.error(msg);
-  if (issues != null) issues.add(vr, value, msg);
+  if (issues != null) issues.add(msg);
   if (throwOnError) throw new InvalidFloatValueError(value, msg);
   return null;
 }
@@ -410,12 +418,12 @@ class InvalidFloatValueError extends Error {
   Object value;
   String msg;
 
-  InvalidFloatValueError(this.value, [this.msg = ""]);
+  InvalidFloatValueError(this.value, [this.msg = '']);
 }
 
 /* Flush if not needed
-Null invalidFloatValue(VRStandard vr, Object value, [ValueIssues issues]) {
-  var msg = 'Invalid VR.k$keyword value: $value';
+Null invalidFloatValue(VRStandard vr, Object value, [Issues issues]) {
+  final msg = 'Invalid VR.k$keyword value: $value';
   log.error(msg);
   if (issues != null) issues.add(vr, value, msg);
   if (throwOnError) throw new InvalidFloatValueError(value, msg);
@@ -426,11 +434,11 @@ class InvalidIntegerValueError extends Error {
   Object value;
   String msg;
 
-  InvalidIntegerValueError(this.value, [this.msg = ""]);
+  InvalidIntegerValueError(this.value, [this.msg = '']);
 }
 
-Null invalidIntegerValue(VRStandard vr, Object value, [ValueIssues issues]) {
-  var msg = 'Invalid VR.k$keyword value: $value';
+Null invalidIntegerValue(VRStandard vr, Object value, [Issues issues]) {
+  final msg = 'Invalid VR.k$keyword value: $value';
   log.error(msg);
   if (issues != null) issues.add(vr, value, msg);
   if (throwOnError) throw new InvalidIntegerValueError(value, msg);
@@ -441,11 +449,11 @@ class InvalidStringValueError extends Error {
   Object value;
   String msg;
 
-  InvalidStringValueError(this.value, [this.msg = ""]);
+  InvalidStringValueError(this.value, [this.msg = '']);
 }
 
-Null invalidStringValue(VRStandard vr, Object value, [ValueIssues issues]) {
-  var msg = 'Invalid VR.k$keyword value: $value';
+Null invalidStringValue(VRStandard vr, Object value, [Issues issues]) {
+  final msg = 'Invalid VR.k$keyword value: $value';
   log.error(msg);
   if (issues != null) issues.add(vr, value, msg);
   if (throwOnError) throw new InvalidStringValueError(value, msg);
@@ -456,14 +464,14 @@ class InvalidSequenceValueError extends Error {
   Object value;
   String msg;
 
-  InvalidSequenceValueError(this.value, [this.msg = ""]);
+  InvalidSequenceValueError(this.value, [this.msg = '']);
 
   @override
-  String toString() => 'Invalid String value("$value") $msg';
+  String toString() => 'Invalid String value('$value') $msg';
 }
 
-Null invalidSequenceValue(VRStandard vr, Object value, [ValueIssues issues]) {
-  var msg = 'Invalid VR.k$keyword value: $value';
+Null invalidSequenceValue(VRStandard vr, Object value, [Issues issues]) {
+  final msg = 'Invalid VR.k$keyword value: $value';
   log.error(msg);
   if (issues != null) issues.add(vr, value, msg);
   if (throwOnError) throw new InvalidSequenceValueError(value, msg);

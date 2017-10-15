@@ -7,7 +7,6 @@
 import 'dart:io';
 
 void writeCodeFile(String path, String content) {
-  path = (path.contains('.dart')) ? path : '$path.dart';
-  File f = new File(path);
-  f.writeAsStringSync(content);
+  final p = (path.contains('.dart')) ? path : '$path.dart';
+  new File(p)..writeAsStringSync(content);
 }

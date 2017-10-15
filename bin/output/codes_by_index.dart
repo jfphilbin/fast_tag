@@ -1,4 +1,4 @@
-  const List<int> codes_by_index = const <int>[
+  const List<int> codesByIndex = const <int>[
   4096, 4097
   ];
   

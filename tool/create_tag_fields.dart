@@ -7,84 +7,71 @@
 import 'package:tag/tag.dart';
 
 void main() {
-  List<String> codesByIndex = <String>[];
-  List<String> sortedCodes = <String>[];
+  final codesByIndex = <String>[];
+  var sortedCodes = <String>[];
 
-  List<String> codeStringsByIndex = <String>[];
-//  List<String> sortedCodeStrings = <String>[];
+  final codeStringsByIndex = <String>[];
+//  final sortedCodeStrings = <String>[];
 
-  List<String> keywordsByIndex = <String>[];
-  List<String> sortedKeywords = <String>[];
+  final keywordsByIndex = <String>[];
+  var sortedKeywords = <String>[];
 
-  List<String> namesByIndex = <String>[];
-  List<String> sortedNames = <String>[];
+  final namesByIndex = <String>[];
+  var sortedNames = <String>[];
 
-  List<List<int>> tagArray = <List<int>>[];
+  final tagArray = <List<int>>[];
 //  List<int> tags = <int>[];
-  List<String> tagStrings = <String>[];
+  final tagStrings = <String>[];
 
-  var pTags = pTagCodes.values.toList(growable: false);
+  final pTags = pTagCodeMap.values.toList(growable: false);
   print('Tag count: ${pTags.length}');
-  for (int i = 1; i < pTags.length; i++) {
-    Tag tag = pTags[i];
+  for (var i = 1; i < pTags.length; i++) {
+    final tag = pTags[i];
     print(tag);
 
 //    int code = tag.code;
-    var codeAsHex = '0x${tag.code.toRadixString(16).padLeft(8, "0")}';
+    final codeAsHex = '0x${tag.code.toRadixString(16).padLeft(8, "0")}';
     codesByIndex.add(codeAsHex);
     codeStringsByIndex.add('"$codeAsHex"');
 
     keywordsByIndex.add('"${tag.keyword}"');
     namesByIndex.add('"${tag.name}"');
-    VR vr = tag.vr;
+    final vr = tag.vr;
     print(vr);
-    int vrIndex = tag.vrIndex;
-    VM vm = tag.vm;
-    int vmMin = vm.min * vm.width;
-    int vmMax = (vm.max == -1) ? 255 : vm.max * vm.width;
-    int vmRank = vm.width;
-    int eType = EType.k3.index;
-    int ieLevel = 4;
-    int retired = tag.isRetired ? 1 : 0;
-    int private = 0;
-    List<int> fTag = [
-      i,
-      vrIndex,
-      vmMin,
-      vmMax,
-      vmRank,
-      eType,
-      ieLevel,
-      private,
-      retired
-    ];
+    final vrIndex = tag.vrIndex;
+    final vm = tag.vm;
+    final vmMin = vm.min * vm.width;
+    final vmMax = (vm.max == -1) ? 255 : vm.max * vm.width;
+    final vmRank = vm.width;
+    final eType = EType.k3.index;
+    final ieLevel = 4;
+    final retired = tag.isRetired ? 1 : 0;
+    final private = 0;
+    final fTag = [i, vrIndex, vmMin, vmMax, vmRank, eType, ieLevel, private, retired];
     print(fTag);
 
     tagArray.add(fTag);
-    var fTagString = '$fTag';
+    final fTagString = '$fTag';
     tagStrings.add(fTagString);
   }
 
-  var tagArrayString = tagStrings.join(', const ');
+  final tagArrayString = tagStrings.join(', const ');
 
-  int x = 1;
-  int y = 2;
+  final x = 1;
+  final y = 2;
   print('x:y ${x.compareTo(y)}');
 
   int compareStrings(String a, String b) => a.compareTo(b);
 
-  sortedCodes = new List.from(codesByIndex);
-  sortedCodes.sort(compareStrings);
+  sortedCodes = new List.from(codesByIndex)..sort(compareStrings);
   print(codesByIndex);
   print(sortedCodes);
 
-  sortedKeywords = new List.from(keywordsByIndex);
-  sortedKeywords.sort(compareStrings);
+  sortedKeywords = new List.from(keywordsByIndex)..sort(compareStrings);
   print(keywordsByIndex);
   print(sortedKeywords);
 
-  sortedNames = new List.from(namesByIndex);
-  sortedNames.sort(compareStrings);
+  sortedNames = new List.from(namesByIndex)..sort(compareStrings);
   print(namesByIndex);
   print(sortedNames);
 

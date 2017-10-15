@@ -37,8 +37,8 @@ abstract class TagDatabase<K> {
 
 class IntTagDatabase extends TagDatabase<int> {
   @override
-  final DBDescriptor descriptor = const DBDescriptor(
-      "TagsByCode", "Tags by Code", "int", "TagEntry", tagEntryType);
+  final DBDescriptor descriptor =
+      const DBDescriptor('TagsByCode', 'Tags by Code', 'int', 'TagEntry', tagEntryType);
 
   @override
   final Map<int, TagEntry> entries = <int, TagEntry>{};
@@ -55,7 +55,7 @@ class IntTagDatabase extends TagDatabase<int> {
 class KeywordTagDatabase extends TagDatabase<String> {
   @override
   final DBDescriptor descriptor = const DBDescriptor(
-      "TagsByKeyword", "Tags by Keyword", "String", "TagEntry", tagEntryType);
+      'TagsByKeyword', 'Tags by Keyword', 'String', 'TagEntry', tagEntryType);
 
   @override
   final Map<String, TagEntry> entries = <String, TagEntry>{};
@@ -73,19 +73,20 @@ final IntTagDatabase tagsByCode = new IntTagDatabase();
 
 final KeywordTagDatabase tagsByKeyword = new KeywordTagDatabase();
 
-TagEntry createTag(
-    int code,
-    String keyword,
-    String name,
-    VRx vr,
-    VMx vm,
-    ETypeX eType,
-    IEx ie,
-    bool isPrivate,
-    bool isRetired,
-    DeIdMethod deIdMethod) {
-  var entry = new TagEntry(
-      code, keyword, name, vr, vm, eType, ie, isPrivate, isRetired, deIdMethod);
+TagEntry createTag(int code, String keyword, String name, VRx vr, VMx vm, ETypeX eType,
+    IEx ie, DeIdMethod deIdMethod, {bool isPublic, bool isRetired}) {
+  final entry = new TagEntry(
+    code,
+    keyword,
+    name,
+    vr,
+    vm,
+    eType,
+    ie,
+    deIdMethod,
+	  isPublic: isPublic,
+    isRetired: isRetired,
+  );
   tagsByCode[code] = entry;
   tagsByKeyword[keyword] = entry;
   return entry;

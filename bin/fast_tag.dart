@@ -120,14 +120,14 @@ int setDeId(int attribute, int value) =>
 int getDeId(int attribute) =>
     (attribute & kDeIdMask) >> kDeIdShift;
 
-String showTag(int v) => v.toRadixString(16).padLeft(16, "0").toUpperCase();
+String showTag(int v) => v.toRadixString(16).padLeft(16, '0').toUpperCase();
 
 void main() {
-  int a = 0;
+	var a = 0;
   a = setIndex(a, indexValue);
   print('a: 0x${showTag(a)}');
 
-  int v = getIndex(a);
+  var v = getIndex(a);
   print('v: 0x${showTag(v)}');
   assert(indexValue == v);
 
@@ -221,9 +221,9 @@ void main() {
 }
 
 int testIndex(int i, int attribute) {
-  List<int> tag = tags[i];
-  attribute = setIndex(attribute, tag[0]);
-  int v = getIndex(attribute);
+	final tag = tags[i];
+  final a = setIndex(attribute, tag[0]);
+	final v = getIndex(a);
   print('Index: $i in: ${tag[0]} out: $v');
   print(' in: 0x${showTag(v)}');
   print('out: 0x${showTag(v)}');

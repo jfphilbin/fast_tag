@@ -4,8 +4,8 @@
 // Author: Jim Philbin <jfphilbin@gmail.edu>
 // See /[package]/AUTHORS file for other contributors.
 
-import 'etype.dart';
-import 'ie_level.dart';
+import 'package:fast_tag/src/db/etype.dart';
+import 'package:fast_tag/src/db/ie_level.dart';
 import 'package:fast_tag/src/vr.dart';
 import 'package:fast_tag/src/vm.dart';
 
@@ -23,7 +23,7 @@ class Tag {
   final Anonymizer anonymizer;
 
   Tag(this.code, this.keyword, this.name, this.vr, this.vm, this.eType, this.ie,
-      this.anonymizer, [this.isPrivate = true, this.isRetired = false, this.isPHI]);
+      this.anonymizer, {this.isPrivate = true, this.isRetired = false, this.isPHI});
 
 }
 

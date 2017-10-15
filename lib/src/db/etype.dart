@@ -29,11 +29,11 @@ class EType {
   @override
   String toString() => '$runtimeType.$name';
 
-  static const EType k1 = const EType(0, "1", "RequiredNonEmpty");
-  static const EType k1c = const EType(1, "1C", "ConditionallyRequiredNonEmpty");
-  static const EType k2 = const EType(2, "2", "Required");
-  static const EType k2c = const EType(3, "2C", "ConditionallyRequired");
-  static const EType k3 = const EType(3, "3", "Optional");
+  static const EType k1 = const EType(0, '1', 'RequiredNonEmpty');
+  static const EType k1c = const EType(1, '1C', 'ConditionallyRequiredNonEmpty');
+  static const EType k2 = const EType(2, '2', 'Required');
+  static const EType k2c = const EType(3, '2C', 'ConditionallyRequired');
+  static const EType k3 = const EType(3, '3', 'Optional');
 
   static const List<EType> byIndex = const [k1, k1c, k2, k2c, k3];
 

@@ -1,28 +1,34 @@
 name: fast_tag
 description: The core packages of the Open DICOMweb (ODW) Software Development Kit (SDK).
-version: 0.1.1
+version: 0.6.5
 # original creator
 author: Jim Philbin <jfphilbin@gmail.com>
 
 homepage: https://github.com/jfphilbin/fast_tag
 
 environment:
-  sdk: ^1.24.2
+  sdk: '>=1.24.2 <2.1.0'
 
 dependencies:
   crypto: ^2.0.2
-  core:
-    path: C:/odw/sdk/core
-    version: ^0.6.3
+  dataset:
+    path: C:/odw/sdk/dataset
+    version: ^0.6.5
+  element:
+    path: C:/odw/sdk/element
+    version: ^0.6.5
+  entity:
+    path: C:/odw/sdk/entity
+    version: ^0.6.5
   number:
     path: C:/odw/sdk/number
-    version: ^0.6.3
+    version: ^0.6.5
   system:
     path: C:/odw/sdk/system
-    version: ^0.6.3
+    version: ^0.6.5
   tag:
     path: C:/odw/sdk/tag
-    version: ^0.6.3
+    version: ^0.6.5
 
 dev_dependencies:
   benchmark_harness: ^1.0.4

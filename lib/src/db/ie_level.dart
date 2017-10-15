@@ -18,10 +18,10 @@ class IE {
   static const int kSeriesIndex = 2;
   static const int kInstanceIndex = 3;
 
-  static const IE kPatient = const IE(kPatientIndex, "Patient");
-  static const IE kStudy = const IE(kStudyIndex, "Study");
-  static const IE kSeries = const IE(kSeriesIndex, "Series");
-  static const IE kInstance = const IE(kInstanceIndex, "Instance");
+  static const IE kPatient = const IE(kPatientIndex, 'Patient');
+  static const IE kStudy = const IE(kStudyIndex, 'Study');
+  static const IE kSeries = const IE(kSeriesIndex, 'Series');
+  static const IE kInstance = const IE(kInstanceIndex, 'Instance');
 
   static int get kMinIELevel => kPatient.index;
   static int get kMaxIELevel => kInstance.index;

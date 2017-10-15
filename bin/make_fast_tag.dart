@@ -8,8 +8,8 @@ import 'dart:io';
 
 import 'package:system/server.dart';
 import 'package:tag/tag.dart';
-import 'package:fast_tag/tag_full.dart';
 import 'package:fast_tag/tag.dart';
+
 /*
 
 int kIndexMask = 0x000000000000FFFF;
@@ -89,59 +89,47 @@ int setDeId(int attribute, int value) =>
 
 int getDeId(int attribute) => (attribute & kDeIdMask) >> kDeIdShift;
 
-String showTag(int v) => v.toRadixString(16).padLeft(16, "0").toUpperCase();
+String showTag(int v) => v.toRadixString(16).padLeft(16, '0').toUpperCase();
 */
 
-FullTag makeFastTagFromList(List<int> tl) => makeFastTag(
-    tl[0], tl[1], tl[2], tl[3], tl[4], tl[5], tl[6], tl[7], tl[8], tl[9]);
+TagFull makeFastTagFromList(List<int> tl) =>
+    makeFastTag(tl[0], tl[1], tl[2], tl[3], tl[4], tl[5], tl[6], tl[7], tl[8], tl[9]);
 
-FullTag makeFastTag(int index, int vrIndex, int vmMin, int vmMax, int vmRank,
-    int eType, int ieLevel, int private, int retired, int deId) {
-  FullTag tag = new FullTag(0);
-
-  tag.index = index;
-  tag.vrIndex = vrIndex;
-  tag.vmMin = vmMin;
-  tag.vmMax = vmMax;
-  tag.vmRank = vmRank;
-  tag.eTypeIndex = eType;
-  tag.ieIndex = ieLevel;
-  tag.private = private;
-  tag.retired = retired;
-  tag.deIdIndex = deId;
+TagFull makeFastTag(int index, int vrIndex, int vmMin, int vmMax, int vmRank, int eType,
+    int ieLevel, int private, int retired, int deId) {
+  final tag = new TagFull(0)
+    ..index = index
+    ..vrIndex = vrIndex
+    ..vmMin = vmMin
+    ..vmMax = vmMax
+    ..vmRank = vmRank
+    ..eTypeIndex = eType
+    ..ieIndex = ieLevel
+    ..private = private
+    ..retired = retired
+    ..deIdIndex = deId;
   print('${tag.info}');
   return tag;
 }
 
-List<int> readFastTag(FullTag tag) {
+List<int> readFastTag(TagFull tag) {
   print('${tag.fieldsAsHex}');
-  int index = tag.index;
+  final index = tag.index;
   print('${tag.index}');
-  int vrIndex = tag.vrIndex;
-  int vmMin = tag.vmMin;
-  int vmMax = tag.vmMax;
-  int vmRank = tag.vmRank;
-  int eType = tag.eTypeIndex;
-  int ieLevel = tag.ieIndex;
-  int private = tag.private;
-  int retired = tag.retired;
-  int deId = tag.deIdIndex;
+  final vrIndex = tag.vrIndex;
+  final vmMin = tag.vmMin;
+  final vmMax = tag.vmMax;
+  final vmRank = tag.vmRank;
+  final eType = tag.eTypeIndex;
+  final ieLevel = tag.ieIndex;
+  final private = tag.private;
+  final retired = tag.retired;
+  final deId = tag.deIdIndex;
 
-  return [
-    index,
-    vrIndex,
-    vmMin,
-    vmMax,
-    vmRank,
-    eType,
-    ieLevel,
-    private,
-    retired,
-    deId
-  ];
+  return [index, vrIndex, vmMin, vmMax, vmRank, eType, ieLevel, private, retired, deId];
 }
 
-//String showTag(int v) => v.toRadixString(16).padLeft(16, "0").toUpperCase();
+//String showTag(int v) => v.toRadixString(16).padLeft(16, '0').toUpperCase();
 
 const List<List<int>> tags = const <List<int>>[
 // [index, vrIndex, vmMin, vmMax, vmRank, eType, ieLevel, private, retired]
@@ -154,16 +142,16 @@ const List<List<int>> tags = const <List<int>>[
   const [0xFEDC, 0xBA, 0x98, 0x76, 0x54, 6, 6, 0x00, 0x00, 0x07]
 ];
 
-FullTag convertTag(int index, Tag tag) {
+TagFull convertTag(int index, Tag tag) {
   log.debug2('$index: $tag');
-  FullTag t = new FullTag(0);
-  var sIndex = TagBase.tagCodeToIndex(tag.code);
+  final t = new TagFull(0);
+  final sIndex = TagX.tagCodeToIndex(tag.code);
   log.debug('index($index) sIndex($sIndex)');
   t.index = index;
-  log.debug('index: $index, t.index: ${t.index}');
-  // *** VR Index
-  log.debug3('tag.vrIndex: ${tag.vrIndex}');
-  int vrIndex = tag.vrIndex - 1;
+  log
+    ..debug('index: $index, t.index: ${t.index}')
+    ..debug3('tag.vrIndex: ${tag.vrIndex}');
+  var vrIndex = tag.vrIndex - 1;
   log.debug3('vrIndex: $vrIndex');
   if (tag.vr.index > 3) vrIndex -= 1;
   log.debug3('vrIndex: $vrIndex');
@@ -171,121 +159,118 @@ FullTag convertTag(int index, Tag tag) {
   log.debug3('vrIndex: ${t.vrIndex}, tag.vr.index: ${tag.vr.index}');
 
   // VM
-  int vmRank = tag.vm.width;
+  var vmRank = tag.vm.width;
   if (vmRank == 0) vmRank = 1;
-  int vmMax = tag.vm.max;
+  var vmMax = tag.vm.max;
   if (tag.vm.max == 0) vmMax = 1;
-  int vmMin = tag.vm.min;
+  final vmMin = tag.vm.min;
   vmMax = tag.vm.max * vmRank;
 
   log.debug1('vmMin: $vmMin, vmMax: $vmMax, vmRank: $vmRank');
-  t.vmMin = vmMin;
-  t.vmMax = vmMax;
-  t.vmRank = vmRank;
-  log.debug1('vmMin: ${t.vmMin}, vmMax: ${t.vmMax}, vmRank: ${t.vmRank}');
-
-  t.eTypeIndex = ETypeX.k3.index;
-  t.ieIndex = IEx.kInstance.index;
-  t.isRetired = tag.isRetired;
-  t.deIdIndex = DeIdMethod.kKeep.index;
-
-  log.debug('$index: ${t.fields}');
+  t
+    ..vmMin = vmMin
+    ..vmMax = vmMax
+    ..vmRank = vmRank
+    ..eTypeIndex = ETypeX.k3.index
+    ..ieIndex = IEx.kInstance.index
+    ..isRetired = tag.isRetired
+    ..deIdIndex = DeIdMethod.kKeep.index;
+  log
+    ..debug1('vmMin: ${t.vmMin}, vmMax: ${t.vmMax}, vmRank: ${t.vmRank}')
+    ..debug('$index: ${t.fields}');
   if (index != t.index) log.error('Bad index($index) tag.index(${t.index}');
-  Tagx tagx = new Tagx(t.fields);
+  final tagx = new TagFull(t.fields);
   log.debug('${tagx.index}: Tagx: ${tagx.info}');
   return t;
 }
 
 void main() {
-  Server.initialize(name: "make_fast_tag.dart", level: Level.debug1);
+  Server.initialize(name: 'make_fast_tag.dart', level: Level.debug1);
 /*  //for (int i = 0; i < tags.length; i++) {
   for (int i = 0; i < 1; i++) {
     var tagList = tags[i];
     FullTag tag = makeFastTagFromList(tagList);
     print('$tag');
     print('${tag.info}');
-    List<int> list = readFastTag(tag);
+    final list = readFastTag(tag);
     print(' in: $tagList');
     print('fast_tag: ${tag.info}');
     print('out: $list\n');
   }
   */
-  int index = 0x100;
-  Tag tag = tagMap.values.toList()[index];
-  int kIndex = TagBase.tagKeywordToIndex(tag.keyword);
-  log.debug('index: $index: keyword index: $kIndex');
-  log.debug('$index: $tag');
-  FullTag ft = convertTag(index, tag);
+  final index = 0x100;
+  final tag = tagMap.values.toList()[index];
+  final kIndex = TagX.tagKeywordToIndex(tag.keyword);
+  log..debug('index: $index: keyword index: $kIndex')..debug('$index: $tag');
+  final ft = convertTag(index, tag);
   log.debug('ft: ${ft.info}');
   createIndexes();
 }
 
 void createIndexes() {
-  List<int> codesByIndex = <int>[];
-  List<String> keywordsByIndex = <String>[];
-  Map<String, int> keywords = <String, int>{};
-  List<String> namesByIndex = <String>[];
-  List<VR> vrsByIndex = <VR>[];
-  List<VM> vmsByIndex = <VM>[];
-  List<bool> isRetiredByIndex = <bool>[];
+  final codesByIndex = <int>[];
+  final keywordsByIndex = <String>[];
+  final keywords = <String, int>{};
+  final namesByIndex = <String>[];
+  final vrsByIndex = <VR>[];
+  final vmsByIndex = <VM>[];
+  final isRetiredByIndex = <bool>[];
 
-  List<PTag> ptags = tagMap.values.toList();
-  var staticConst = "";
-  var keywordConst = "";
-  var codeConst = "";
+  final ptags = tagMap.values.toList();
+  final staticConst = new StringBuffer();
+  final keywordConst = new StringBuffer();
+  final codeConst = new StringBuffer();
 //  for (int i = 0; i < tagMap.length; i++) {
-  for (int i = 0; i < 2; i++) {
+  for (var i = 0; i < 2; i++) {
     log.debug('index: $i');
-    FullTag t = new FullTag(0);
-    int code = ptags[i].code;
+    final t = new TagFull(0);
+    final code = ptags[i].code;
     codesByIndex.add(code);
-    String keyword = ptags[i].keyword;
+    final keyword = ptags[i].keyword;
     keywordsByIndex.add(keyword);
     keywords[keyword] = i;
 
     namesByIndex.add(ptags[i].name);
     t.index = i;
 
-    VR vr = ptags[i].vr;
+    final vr = ptags[i].vr;
     vrsByIndex.add(vr);
     t.vrIndex = vr.index;
 
-    VM vm = ptags[i].vm;
+    final vm = ptags[i].vm;
     vmsByIndex.add(vm);
-    log.debug('vm ${vm.keyword}: ${t.vmMin}, ${t.vmMax}, ${t.vmRank}');
+    log.debug('vm ${vm.id}: ${t.vmMin}, ${t.vmMax}, ${t.vmRank}');
     t.vmRank = (vm.width == 0) ? 1 : vm.width;
     log.debug('vmRank: ${t.vmRank}');
- //   t.vmMin = (vm.min ;
-    t.vmMax = (vm.max == -1) ? 255 : vm.max;
-    t.vmMax = t.vmMax * t.vmRank;
+    //   t.vmMin = (vm.min ;
+    t
+      ..vmMax = (vm.max == -1) ? 255 : vm.max
+      ..vmMax = t.vmMax * t.vmRank
+      ..eTypeIndex = ETypeX.k3.index
+      ..ieIndex = IEx.kInstance.index
+      ..isPrivate = ptags[i].isPublic;
     log.debug('vmMax: ${t.vmRank}');
-
-    t.eTypeIndex = ETypeX.k3.index;
-    t.ieIndex = IEx.kInstance.index;
-    t.isPrivate = ptags[i].isPublic;
-    bool retired = ptags[i].isRetired;
+    final retired = ptags[i].isRetired;
     t.isRetired = retired;
     isRetiredByIndex.add(retired);
 
     t.deIdIndex = DeIdMethod.kKeep.index;
 
     log.debug('T: ${t.info}');
-    staticConst +=
-        'static const Tagx k$keyword = const Tagx(${t.fieldsAsHex});';
-    keywordConst += 'static const Tagx k$keyword = ${t.fieldsAsHex});';
-    codeConst += 'const k$code = ${t.fieldsAsHex});';
+    staticConst.write('static const Tagx k$keyword = const Tagx(${t.fieldsAsHex});');
+    keywordConst.write('static const Tagx k$keyword = ${t.fieldsAsHex});');
+    codeConst.write('const k$code = ${t.fieldsAsHex});');
   }
   print('Tags: $staticConst');
   print('keywords: $keywordConst');
   print('Codes: $codeConst');
-  List<String> sortedKeywords = new List.from(keywordsByIndex);
-  sortedKeywords.sort();
-  List<int> sortedKeywordIndexToIndex = new List<int>(sortedKeywords.length);
-  for(int i = 0; i < sortedKeywords.length; i++) {
-
-    String keyword = keywordsByIndex[i];
+  final sortedCodes = new List<int>.from(codesByIndex)..sort();
+  final sortedKeywords = new List<String>.from(keywordsByIndex)..sort();
+  final sortedKeywordIndexToIndex = new List<int>(sortedKeywords.length);
+  for (var i = 0; i < sortedKeywords.length; i++) {
+    final keyword = keywordsByIndex[i];
     log.debug('$i: "$keyword"');
-    int sortedIndex = sortedKeywords.indexOf(keyword);
+    final sortedIndex = sortedKeywords.indexOf(keyword);
     sortedKeywordIndexToIndex[sortedIndex] = i;
     log.debug('sortedIndex = $sortedIndex: ${sortedKeywords[sortedIndex]}');
     assert(keywordsByIndex[i] == sortedKeywords[sortedIndex]);
@@ -295,24 +280,22 @@ void createIndexes() {
   print('kbi: ${sortedKeywordIndexToIndex.length}');
   print('kbi: ${sortedKeywords.length}');
 
-
   writeListFile('bin/output/keywords_by_index.dart',
-    stringListToListDef('keywordsByIndex', keywordsByIndex));
+      stringListToListDef('keywordsByIndex', keywordsByIndex));
   writeListFile('bin/output/sorted_keywords.dart',
       stringListToListDef('sortedKeywords', sortedKeywords));
   writeListFile('bin/output/sorted_keywords_index.dart',
       intListToListDef('sortedKeywordIndex', sortedKeywordIndexToIndex));
 
-  writeListFile('bin/output/codes_by_index.dart',
-      intListToListDef('codes_by_index', codesByIndex));
+  writeListFile(
+      'bin/output/codes_by_index.dart', intListToListDef('codes_by_index', codesByIndex));
   writeListFile('bin/output/sorted_codes_index.dart',
       intListToListDef('sortedCodesIndex', sortedCodes));
-
 }
 
 String stringListToListDef(String name, List<String> values) {
-  Iterable<String> sList = values.map((v) => '"$v"');
-  var s = sList.join(', ');
+  final sList = values.map((v) => '"$v"');
+  final s = sList.join(', ');
   return '''
   const List<String> $name = const <String>[
   $s
@@ -321,17 +304,14 @@ String stringListToListDef(String name, List<String> values) {
 }
 
 String intListToListDef(String name, List<int> values) {
-  Iterable<String> sList = values.map((v) => '$v');
-  var s = sList.join(', ');
+  final sList = values.map((v) => '$v');
+  final s = sList.join(', ');
   return '''
-  const List<int> $name = const <int>[
+  const final $name = const <int>[
   $s
   ];
   ''';
 }
 
-void writeListFile(String path, String contents) {
-  File f = new File(path);
-  f.writeAsStringSync(contents);
-
-}
+void writeListFile(String path, String contents) =>
+    new File(path)..writeAsStringSync(contents);

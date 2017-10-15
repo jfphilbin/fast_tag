@@ -26,10 +26,10 @@ class IEx {
   static const int kSeriesIndex = 2;
   static const int kInstanceIndex = 3;
 
-  static const IEx kPatient = const IEx(kPatientIndex, "Patient");
-  static const IEx kStudy = const IEx(kStudyIndex, "Study");
-  static const IEx kSeries = const IEx(kSeriesIndex, "Series");
-  static const IEx kInstance = const IEx(kInstanceIndex, "Instance");
+  static const IEx kPatient = const IEx(kPatientIndex, 'Patient');
+  static const IEx kStudy = const IEx(kStudyIndex, 'Study');
+  static const IEx kSeries = const IEx(kSeriesIndex, 'Series');
+  static const IEx kInstance = const IEx(kInstanceIndex, 'Instance');
 
   static int get kMinIELevel => kPatient.index;
   static int get kMaxIELevel => kInstance.index;

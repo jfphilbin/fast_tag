@@ -3,24 +3,22 @@
 // that can be found in the LICENSE file.
 // Author: Jim Philbin <jfphilbin@gmail.edu>
 // See the AUTHORS file for other contributors.
-
 library odw.sdk.core.tag_base;
 
-import 'package:collection/collection.dart';
 import 'package:system/system.dart';
+
 import 'package:fast_tag/src/de_id_method.dart';
+import 'package:fast_tag/src/error.dart';
 import 'package:fast_tag/src/etype.dart';
 import 'package:fast_tag/src/ie.dart';
 import 'package:fast_tag/src/vm.dart';
 import 'package:fast_tag/src/vr.dart';
 
-part 'package:fast_tag/src/error.dart';
 part 'package:fast_tag/src/internal/code_strings_by_index.dart';
 part 'package:fast_tag/src/internal/codes_by_index.dart';
 part 'package:fast_tag/src/internal/field_definitions.dart';
 part 'package:fast_tag/src/internal/keywords_by_index.dart';
 part 'package:fast_tag/src/internal/names_by_index.dart';
-
 
 // ***** This file should not be exported by this library    ******
 // ***** The definitions may change from version to version. *****
@@ -62,33 +60,31 @@ part 'package:fast_tag/src/internal/names_by_index.dart';
 /// | Total      |      ? |        55 |        |            |
 ///
 
-const int kIndexMask   = 0x000000000000FFFF;
+const int kIndexMask = 0x000000000000FFFF;
 const int kVRIndexMask = 0x0000000000FF0000;
-const int kVMMinMask   = 0x00000000FF000000;
-const int kVMMaxMask   = 0x000000FF00000000;
-const int kVMRankMask  = 0x0000FF0000000000;
-const int kETypeMask   = 0x0007000000000000;
+const int kVMMinMask = 0x00000000FF000000;
+const int kVMMaxMask = 0x000000FF00000000;
+const int kVMRankMask = 0x0000FF0000000000;
+const int kETypeMask = 0x0007000000000000;
 const int kIELevelMask = 0x0018000000000000;
 const int kPrivateMask = 0x0020000000000000;
 const int kRetiredMask = 0x0040000000000000;
-const int kDeIdMask    = 0x0380000000000000;
+const int kDeIdMask = 0x0380000000000000;
 
 // Field shift values
-const int kIndexShift   = 0;
+const int kIndexShift = 0;
 const int kVRIndexShift = 16;
-const int kVMMinShift   = 24;
-const int kVMMaxShift   = 32;
-const int kVMRankShift  = 40;
-const int kETypeShift   = 48;
+const int kVMMinShift = 24;
+const int kVMMaxShift = 32;
+const int kVMRankShift = 40;
+const int kETypeShift = 48;
 const int kIELevelShift = 51;
 const int kPrivateShift = 53;
 const int kRetiredShift = 54;
-const int kDeIdShift    = 55;
-
+const int kDeIdShift = 55;
 
 /// Returns [true] if value [v] is in the specified range.
 bool _inRange(int v, int min, int max) => v >= 0 && v <= 0xFFFF;
-
 
 //Urgent: validate
 // [0, 0, 0, 1, 1, 0, 0, 0, 0]
@@ -132,8 +128,7 @@ int checkVMMax(int i) => _isValidVMMax(i) ? i : invalidValueError(i, 'vmMax');
 const int _kMinVMRank = 1;
 const int _kMaxVMRank = -1;
 bool _isValidVMRank(int i) => _inRange(i, _kMinVMRank, _kMaxVMRank);
-int checkVMRank(int i) =>
-    _isValidVMRank(i) ? i : invalidValueError(i, 'vmRank');
+int checkVMRank(int i) => _isValidVMRank(i) ? i : invalidValueError(i, 'vmRank');
 
 // EType
 const int _kMinEType = 0;
@@ -145,39 +140,53 @@ int checkEType(int i) => _isValidEType(i) ? i : invalidValueError(i, 'EType');
 const int _kMinIELevel = 0;
 const int _kMaxIELevel = 3;
 bool _isValidIELevel(int i) => _inRange(i, _kMinIELevel, _kMaxIELevel);
-int checkIELevel(int i) =>
-    _isValidIELevel(i) ? i : invalidValueError(i, 'IELevel');
+int checkIELevel(int i) => _isValidIELevel(i) ? i : invalidValueError(i, 'IELevel');
 
 // Private
 const int _kMinPrivate = 0;
 const int _kMaxPrivate = 3;
 bool _isValidPrivate(int i) => _inRange(i, _kMinPrivate, _kMaxPrivate);
-int checkPrivate(int i) =>
-    _isValidPrivate(i) ? i : invalidValueError(i, 'Private');
+int checkPrivate(int i) => _isValidPrivate(i) ? i : invalidValueError(i, 'Private');
 
 // Retired
 const int _kMinRetired = 0;
 const int _kMaxRetired = 3;
 bool _isValidRetired(int i) => _inRange(i, _kMinRetired, _kMaxRetired);
-int checkRetired(int i) =>
-    _isValidRetired(i) ? i : invalidValueError(i, 'Retired');
+int checkRetired(int i) => _isValidRetired(i) ? i : invalidValueError(i, 'Retired');
 
 // De-Identification
-const int _kMinDeId= 0;
+const int _kMinDeId = 0;
 const int _kMaxDeId = 7;
 bool _isValidDeId(int i) => _inRange(i, _kMinDeId, _kMaxDeId);
-int checkDeId(int i) =>
-    _isValidDeId(i) ? i : invalidValueError(i, 'De-Identifier');
+int checkDeId(int i) => _isValidDeId(i) ? i : invalidValueError(i, 'De-Identifier');
 
 abstract class TagBase {
-  const TagBase();
+   const TagBase();
 
   int get fields;
 
+  // Tag Index
+  int get index => (fields & kIndexMask) >> kIndexShift;
+
+  /// Returns the [vrIndex] for [this].
+  int get vrIndex => (fields & kVRIndexMask) >> kVRIndexShift;
+
+  // Value Multiplicity Getters
+  int get vmMin => (fields & kVMMinMask) >> kVMMinShift;
+  int get vmMax => (fields & kVMMaxMask) >> kVMMaxShift;
+  int get vmRank => (fields & kVMRankMask) >> kVMRankShift;
+
+  /// Returns the Element Type index for [this].
+  int get eTypeIndex => (fields & kETypeMask) >> kETypeShift;
+
+  /// Returns the Information Entity index for [this].
+  int get ieIndex => (fields & kIELevelMask) >> kIELevelShift;
+
+  int get private => (fields & kPrivateMask) >> kPrivateShift;
+  int get retired => (fields & kRetiredMask) >> kRetiredShift;
+  int get deIdIndex => (fields & kDeIdMask) >> kDeIdShift;
 
   String get fieldsAsHex => '0x${fields.toRadixString(16).padLeft(16, '0')}';
-
-  int get index => (fields & kIndexMask) >> kIndexShift;
 
   /// Returns the [keyword] for [this].
   String get keyword => kKeywordsByIndex[index];
@@ -188,154 +197,35 @@ abstract class TagBase {
   /// Returns the DICOM Tag Code for [this].
   int get code => codesByIndex[index];
 
-  /// Returns the DICOM Tag Code for [this] as a hexadecimal [String].
-  String get asHex => get32BitHex(code);
-
   /// Returns the DICOM Tag Code for [this] as a DICOM formated [String],
   /// i.e. "(gggg,eeee)".
   String get asDcm => '($groupAsHex,$eltAsHex)';
 
-  /// Returns the Tag Code Group Number of [this].
-  int get group => code >> 16;
-
-  /// Returns the Tag Code Group Number of [this] as a hexadecimal [String].
-  String get groupAsHex => get16BitHex(group);
-
-  /// Returns the Tag Code Element Number of [this].
-  int get elt => code & 0xFFF;
-
-  /// Returns the Tag Code Element Number of [this] as a hexadecimal [String].
-  String get eltAsHex => get16BitHex(group);
-
-  // VR Getters
-
-  /// Returns the [vrIndex] for [this].
-  int get vrIndex => (fields & kVRIndexMask) >> kVRIndexShift;
+  // **** VR Getters
 
   /// Returns the [VRx] for [this].
-  VRx get vr => VRx.kByAlphabeticIndex[vrIndex];
+  VRx get vr => VRx.kVRFromIndex(vrIndex);
 
-  // Value Multiplicity Getters
-  int get vmMin => (fields & kVMMinMask) >> kVMMinShift;
-  int get vmMax => (fields & kVMMaxMask) >> kVMMaxShift;
-  int get vmRank => (fields & kVMRankMask) >> kVMRankShift;
   VMx get vm => VMx.lookup(vmMin, vmMax, vmRank);
-
-  /// Returns the Element Type index for [this].
-  int get eTypeIndex => (fields & kETypeMask) >> kETypeShift;
 
   /// Returns the Element Type ([ETypeX]) for [this].
   ETypeX get eType => ETypeX.byIndex[eTypeIndex];
 
-  /// Returns the Information Entity index for [this].
-  int get ieIndex => (fields & kIELevelMask) >> kIELevelShift;
-
   /// Returns the Information Entity ([IEx]) for [this].
-  IEx get ie => IEx.byIndex[ieIndex];
+  IEx get entity => IEx.byIndex[ieIndex];
 
-  int get private => (fields & kPrivateMask) >> kPrivateShift;
-
-  bool get isPrivate => group.isOdd;
+  bool get isPrivate => private == 1;
   bool get isPublic => !isPrivate;
-
-  int get retired => (fields & kRetiredMask) >> kRetiredShift;
   bool get isRetired => retired == 1;
-
-  int get deIdIndex => (fields & kDeIdMask) >> kDeIdShift;
   DeIdMethod get deIdMethod => DeIdMethod.byIndex[deIdIndex];
 
   String get info {
-    var x = (isPrivate) ? 'Private' : "";
-    x += (isRetired) ? ' Retired' : "";
-    return '$this $vr $vm $eType $ie $x';
-  }
-
-  /// Returns [true] if [values] has a valid length for [this].
-  bool isValidLength(List values, [ValuesIssues issues]) {
-    assert(values != null);
-    var length = values.length;
-    if (length == 0 && eTypeIndex > 1) return true;
-    var ok = length >= vmMin && length <= vmMax && length % vmRank == 0;
-    return (ok) ? true : _valuesLengthError(length, issues);
-  }
-
-  bool isNotValidLength(List values, [ValuesIssues issues]) =>
-      !isValidLength(values, issues);
-
-  /// Returns [true] if [vList] is a valid values [List] for [this].
-  /// _Note_: Checks all values in [vList], so [issues] will be complete.
-  bool isValidValues<V>(List<V> vList, [ValuesIssues issues]) {
-    if (isNotValidLength(vList, issues)) return false;
-    var ok = true;
-    for (V v in vList) if (vr.isNotValid(v)) ok = false;
-    return ok;
-  }
-
-  bool isNotValidValues<V>(List<V> vList) => !isValidValues(vList);
-
-  bool _valuesLengthError<T>(int length, ValuesIssues issues) {
-    var msg = <String>[];
-    var okLength = length >= vmMin && length <= vmMax;
-    if (!okLength) {
-      msg.add('Invalid number of values: '
-          'min($vmMin) <= length(${length} <= max($vmMax))');
-    }
-    var okRank = length % vmRank == 0;
-    if (!okRank) {
-      msg.add('Invalid number of values: '
-          'length(${length} modulo width($vmRank) must equal 0, '
-          'but is ${length % vmRank}');
-    }
-    if (issues != null) issues.addAll(msg);
-    // log.error(issues.message);
-    if (throwOnError) throw new InvalidValuesLengthError(this, msg);
-    return false;
+    final sb = new StringBuffer('$this $vr $vm $eType $entity ')
+      ..write((isPrivate) ? 'Private' : '')
+      ..write((isRetired) ? 'Retired' : '');
+    return sb.toString();
   }
 
   @override
   String toString() => '$runtimeType: $keyword$asDcm';
-
-
-  // **** Static Getters and Methods ****
-
-  static bool isValidTagIndex(int i) => tagInRange(i);
-
- static int tagCodeStringToIndex(String s) => binarySearch(sortedCodeStrings, s);
-
- static  int tagCodeToIndex(int code) => binarySearch(sortedCodes, code);
-
-  static String getTagKeyword(int index) =>
-      (index <= 0 || index >= kKeywordsByIndex.length)
-          ? null
-          : kKeywordsByIndex[index];
-
-  static int tagKeywordToIndex(String name) => binarySearch(sortedKeywords, name);
-
-  static String getTagName(int index) =>
-      (index <= 0 || index >= namesByIndex.length) ? null : namesByIndex[index];
-
-  static int tagNameToIndex(String name) => binarySearch(sortedNames, name);
-
-  /// A [List] of [TagBase]s by their index.
-  static List<TagBase> byIndex = [];
-
-  /// Returns the [TagBase] corresponding to [index].
-  static TagBase lookup(int index) => byIndex[index];
-
-  /// Returns the [TagBase] corresponding to its [index].
-  static TagBase fromIndex(int index) => byIndex[index];
-
-  /// Returns the [TagBase] corresponding to the DICOM [code].
-  static TagBase fromCode(int code) => byIndex[tagCodeToIndex(code)];
-
-  /// Returns the [TagBase] corresponding to code [String] [s]. A code [String]
-  /// has the format "ggggeeee".
-  static TagBase fromCodeString(String s) => byIndex[tagCodeStringToIndex(s)];
-
-  /// Returns the [TagBase] corresponding to [keyword].
-  static TagBase fromKeyword(String keyword) => byIndex[tagKeywordToIndex(keyword)];
-
-  /// Returns the [TagBase] corresponding to [name].
-  static TagBase fromName(String name) => byIndex[tagNameToIndex(name)];
-
 }

@@ -7,15 +7,15 @@
 import 'package:fast_tag/tag.dart';
 
 const Map<String, String> tagEntryType = const <String, String>{
-  "code": "int",
-  "keyword": "String",
-  "name": "String",
-  "vr": "VR",
-  "vm": "VM",
-  "eType": "EType",
-  "ie": "IE",
-  "isPublic": "bool",
-  "isRetired": "bool"
+  'code': 'int',
+  'keyword': 'String',
+  'name': 'String',
+  'vr': 'VR',
+  'vm': 'VM',
+  'eType': 'EType',
+  'ie': 'IE',
+  'isPublic': 'bool',
+  'isRetired': 'bool'
 };
 
 class TagEntry {
@@ -27,20 +27,20 @@ class TagEntry {
   VMx vm;
   ETypeX eType;
   IEx ie;
+  DeIdMethod deIdMethod;
   bool isPublic;
   bool isRetired;
-  DeIdMethod deIdMethod;
 
   TagEntry(this.code, this.keyword, this.name, this.vr, this.vm, this.eType,
-      this.ie, this.isPublic, this.isRetired, this.deIdMethod);
+      this.ie, this.deIdMethod, {this.isPublic, this.isRetired});
 
-  String _toHex4(int v) => v.toRadixString(16).padLeft(4, "0");
-  String _toHex8(int v) =>  v.toRadixString(16).padLeft(8, "0");
+  String _toHex4(int v) => v.toRadixString(16).padLeft(4, '0');
+  String _toHex8(int v) =>  v.toRadixString(16).padLeft(8, '0');
   int get group => code >> 16;
-  String get groupHex => "0x" +_toHex4(group);
+  String get groupHex => '0x${_toHex4(group)}';
   int get element => code & 0xFFFF;
-  String get elementHex => '0x' + _toHex4(element);
-  String get hex => '0x' + _toHex8(code);
+  String get elementHex => '0x${_toHex4(element)}';
+  String get hex => '0x${_toHex8(code)}';
   String get dcm => '(${_toHex4(group)},${_toHex4(element)})';
 
   // VRs
@@ -48,18 +48,18 @@ class TagEntry {
   int get vrCode => vr.code;
   String get vrKeyword => vr.keyword;
   bool isValidValue<T>(T v) => vr.isValid(v);
-  bool isNotValidValue<T>(List<T> v) => vm.isNotValid(v);
+  bool isNotValidValue<T>(List<T> v, int maxLength) => vm.isNotValid(v, maxLength);
 
   // VMs
   int get minValues => vm.min;
   int get maxValues => vm.max;
   int get rank => vm.rank;
-  bool isValidLength<T>(List<T> v) => vm.isValid(v);
-  bool isNotValidLength<T>(List<T> v) => vm.isNotValid(v);
+  bool isValidLength<T>(List<T> v, int maxLength) => vm.isValid(v, maxLength);
+  bool isNotValidLength<T>(List<T> v, int maxLength) => vm.isNotValid(v, maxLength);
 
-  bool isValidValues<T>(List<T> values) {
-    if (vm.isNotValid(values)) return false;
-    for (int i = 0; i < values.length; i++)
+  bool isValidValues<T>(List<T> values, int maxLength) {
+    if (vm.isNotValid(values, maxLength)) return false;
+    for (var i = 0; i < values.length; i++)
       if (vr.isNotValid(values[i])) return false;
     return true;
   }
