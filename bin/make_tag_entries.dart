@@ -5,6 +5,7 @@
 // See the AUTHORS file for other contributors.
 
 import 'package:tag/tag.dart';
+//import 'package:vr/vr.dart';
 
 import 'package:fast_tag/gen/tag_database.dart';
 import 'package:fast_tag/src/vr.dart';
@@ -21,8 +22,8 @@ void main() {
     final vrIndex = t.vr.index;
     var vrxIndex =  vrIndex - 1;
     if (vrIndex > 3) vrxIndex -= 1;
-    var vr = (vrIndex == -1) ? null : VRx.kVRFromIndex(vrxIndex);
-    if (t.vr == VR.kInvalid) vr = null;
+    final vr = (vrIndex == -1) ? null : VRx.kVRFromIndex(vrxIndex);
+//    if (t.vr == VR.kInvalid) vr = null;
     print('  vr: ${t.vr.id}');
     print(' vrx: $vr');
     print('t.vm: ${t.vm}');

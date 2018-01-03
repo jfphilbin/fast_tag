@@ -78,7 +78,7 @@ class TagEntry {
   bool get isSeries => ie.isStudy;
   bool get isInstance => ie.isInstance;
 
-  /// Returns [true] if [this] is a internal (group.isOdd) Element.
+  /// Returns _true_ if _this_ is a internal (group.isOdd) Element.
   bool get isPrivate => !isPublic;
 
   @override

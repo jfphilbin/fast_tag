@@ -35,7 +35,7 @@ part 'package:fast_tag/src/internal/names_by_index.dart';
 ///   VR Index: Identifies the Attributes Value Representation or Data Type.
 ///   VM Min: The minimum number of values the Attribute must have.
 ///   VM Max: The maximum number of values the Attribute must have.
-///   VM Rank: The width of the values array.
+///   VM Columns: The width of the values array.
 ///   Type: The conditionality of the Attribute.
 ///   Private: Is the Attribute internal.
 ///   Retired: Is the Attribute retired.
@@ -48,23 +48,26 @@ part 'package:fast_tag/src/internal/names_by_index.dart';
 /// | Name       | Needed | Allocated | Offset |    Mask    |
 /// |------------|--------|-----------|--------|------------|
 /// | Index      |      ? |        16 |      0 | 0x00000000 |
-/// | VR Index   |      6 |         8 |     16 | 0x00000000 |
-/// | VM Min     |      ? |         8 |     24 | 0x00000000 |
+/// | VR Index   |      5 |         8 |     16 | 0x00000000 |
+/// | VM Min     |      ? |         8 |     24 | 0x00000000 | calculate
 /// | VM Max     |      ? |         8 |     32 | 0x00000000 |
-/// | VM Width   |      ? |         8 |     40 | 0x00000000 |
-/// | Mode       |      3 |         3 |     43 | 0x00000000 |
+/// | VM Columns |      2 |         8 |     40 | 0x00000000 |
+/// | DeId Type  |      3 |         3 |     43 | 0x00000000 |
 /// | IE Level   |      2 |         2 |     45 | 0x00000000 |
+/// | EType      |      2 |         2 |     45 | 0x00000000 |
 /// | isPrivate  |      1 |         1 |     46 | 0x00000000 |
 /// | is Retired |      1 |         1 |     24 | 0x00000000 |
 /// |------------|--------|---- ------|--------|------------|
 /// | Total      |      ? |        55 |        |            |
 ///
 
+/// Unknown Public Tag [0, kUNIndex, 1, -1, 1, , instance, public, false]
+/// Unknown Public Tag [0, kUNIndex, 1, -1, 1, , instance, private, false]
 const int kIndexMask = 0x000000000000FFFF;
 const int kVRIndexMask = 0x0000000000FF0000;
 const int kVMMinMask = 0x00000000FF000000;
 const int kVMMaxMask = 0x000000FF00000000;
-const int kVMRankMask = 0x0000FF0000000000;
+const int kVMColumnsMask = 0x0000FF0000000000;
 const int kETypeMask = 0x0007000000000000;
 const int kIELevelMask = 0x0018000000000000;
 const int kPrivateMask = 0x0020000000000000;
@@ -76,14 +79,14 @@ const int kIndexShift = 0;
 const int kVRIndexShift = 16;
 const int kVMMinShift = 24;
 const int kVMMaxShift = 32;
-const int kVMRankShift = 40;
+const int kVMColumnsShift = 40;
 const int kETypeShift = 48;
 const int kIELevelShift = 51;
 const int kPrivateShift = 53;
 const int kRetiredShift = 54;
 const int kDeIdShift = 55;
 
-/// Returns [true] if value [v] is in the specified range.
+/// Returns _true_ if value [v] is in the specified range.
 bool _inRange(int v, int min, int max) => v >= 0 && v <= 0xFFFF;
 
 //Urgent: validate
@@ -102,7 +105,6 @@ String get16BitHex(int i) => '0x${i.toRadixString(16).padLeft(4, '0')}';
 // Index
 const int _kMinIndex = 0;
 const int _kMaxIndex = 0xFFFF;
-const int _kIndexOffset = 0;
 bool _isValidIndex(int i) => _inRange(i, _kMinIndex, _kMaxIndex);
 int checkIndex(int i) => _isValidIndex(i) ? i : invalidValueError(i, 'Index');
 
@@ -125,10 +127,10 @@ bool _isValidVMMax(int i) => _inRange(i, _kMinVMMax, _kMaxVMMax);
 int checkVMMax(int i) => _isValidVMMax(i) ? i : invalidValueError(i, 'vmMax');
 
 // vmRank
-const int _kMinVMRank = 1;
-const int _kMaxVMRank = -1;
-bool _isValidVMRank(int i) => _inRange(i, _kMinVMRank, _kMaxVMRank);
-int checkVMRank(int i) => _isValidVMRank(i) ? i : invalidValueError(i, 'vmRank');
+const int _kMinVMColumns = 1;
+const int _kMaxVMColumns = -1;
+bool _isValidVMColumns(int i) => _inRange(i, _kMinVMColumns, _kMaxVMColumns);
+int checkVMColumns(int i) => _isValidVMColumns(i) ? i : invalidValueError(i, 'vmRank');
 
 // EType
 const int _kMinEType = 0;
@@ -160,63 +162,72 @@ const int _kMaxDeId = 7;
 bool _isValidDeId(int i) => _inRange(i, _kMinDeId, _kMaxDeId);
 int checkDeId(int i) => _isValidDeId(i) ? i : invalidValueError(i, 'De-Identifier');
 
+/// A class providing read only access to Tags. This class can be used
+/// as a Mixin for elements that contain a [tag] field. It can also be used
+/// to create constant classes for Tags, Private Creator Tags, and
+/// Private Data Tags.
 abstract class TagBase {
-   const TagBase();
+  const TagBase();
 
-  int get fields;
+  int get tag;
 
   // Tag Index
-  int get index => (fields & kIndexMask) >> kIndexShift;
+  int get index => (tag & kIndexMask) >> kIndexShift;
 
-  /// Returns the [vrIndex] for [this].
-  int get vrIndex => (fields & kVRIndexMask) >> kVRIndexShift;
+  /// Returns the [vrIndex] for _this_.
+  int get vrIndex => (tag & kVRIndexMask) >> kVRIndexShift;
 
   // Value Multiplicity Getters
-  int get vmMin => (fields & kVMMinMask) >> kVMMinShift;
-  int get vmMax => (fields & kVMMaxMask) >> kVMMaxShift;
-  int get vmRank => (fields & kVMRankMask) >> kVMRankShift;
+  int get vmMin => (tag & kVMMinMask) >> kVMMinShift;
+  int get vmMax => (tag & kVMMaxMask) >> kVMMaxShift;
+  int get vmRank => (tag & kVMColumnsMask) >> kVMColumnsShift;
 
-  /// Returns the Element Type index for [this].
-  int get eTypeIndex => (fields & kETypeMask) >> kETypeShift;
+  /// Returns the Element Type index for _this_.
+  int get eTypeIndex => (tag & kETypeMask) >> kETypeShift;
 
-  /// Returns the Information Entity index for [this].
-  int get ieIndex => (fields & kIELevelMask) >> kIELevelShift;
+  /// Returns the Information Entity index for _this_.
+  int get ieIndex => (tag & kIELevelMask) >> kIELevelShift;
 
-  int get private => (fields & kPrivateMask) >> kPrivateShift;
-  int get retired => (fields & kRetiredMask) >> kRetiredShift;
-  int get deIdIndex => (fields & kDeIdMask) >> kDeIdShift;
+  int get private => (tag & kPrivateMask) >> kPrivateShift;
+  int get retired => (tag & kRetiredMask) >> kRetiredShift;
+  int get deIdIndex => (tag & kDeIdMask) >> kDeIdShift;
 
-  String get fieldsAsHex => '0x${fields.toRadixString(16).padLeft(16, '0')}';
+  String get fieldsAsHex => '0x${tag.toRadixString(16).padLeft(16, '0')}';
 
-  /// Returns the [keyword] for [this].
+  /// Returns the DICOM Tag Code for _this_.
+  int get code => codesByIndex[index];
+  int codeToTag(int code) => codeToTagMap[code];
+
+  /// Returns the [keyword] for _this_.
   String get keyword => kKeywordsByIndex[index];
+  int keywordToTag(String keyword) => keywordToTagMap[keyword];
 
-  /// Returns the [name] for [this].
+  /// Returns the [name] for _this_.
   String get name => namesByIndex[index];
 
-  /// Returns the DICOM Tag Code for [this].
-  int get code => codesByIndex[index];
-
-  /// Returns the DICOM Tag Code for [this] as a DICOM formated [String],
+  /// Returns the DICOM Tag Code for _this_ as a DICOM formated [String],
   /// i.e. "(gggg,eeee)".
   String get asDcm => '($groupAsHex,$eltAsHex)';
 
   // **** VR Getters
 
-  /// Returns the [VRx] for [this].
+  /// Returns the [VRx] for _this_.
   VRx get vr => VRx.kVRFromIndex(vrIndex);
 
   VMx get vm => VMx.lookup(vmMin, vmMax, vmRank);
 
-  /// Returns the Element Type ([ETypeX]) for [this].
+  /// Returns the Element Type ([ETypeX]) for _this_.
   ETypeX get eType => ETypeX.byIndex[eTypeIndex];
 
-  /// Returns the Information Entity ([IEx]) for [this].
+  /// Returns the Information Entity ([IEx]) for _this_.
   IEx get entity => IEx.byIndex[ieIndex];
 
   bool get isPrivate => private == 1;
+
   bool get isPublic => !isPrivate;
+
   bool get isRetired => retired == 1;
+
   DeIdMethod get deIdMethod => DeIdMethod.byIndex[deIdIndex];
 
   String get info {
@@ -229,3 +240,11 @@ abstract class TagBase {
   @override
   String toString() => '$runtimeType: $keyword$asDcm';
 }
+
+const Map<int, int> codeToTagMap = const {
+  0x00020000: kFileMetaInformationGroupLength // No reformat
+};
+
+const Map<String, int> keywordToTagMap = const {
+  'FileMetaInformationGroupLength': kFileMetaInformationGroupLength
+};

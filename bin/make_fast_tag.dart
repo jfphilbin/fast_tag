@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:system/server.dart';
 import 'package:tag/tag.dart';
 import 'package:fast_tag/tag.dart';
+import 'package:vr/vr.dart';
 
 /*
 
@@ -92,12 +93,13 @@ int getDeId(int attribute) => (attribute & kDeIdMask) >> kDeIdShift;
 String showTag(int v) => v.toRadixString(16).padLeft(16, '0').toUpperCase();
 */
 
-TagFull makeFastTagFromList(List<int> tl) =>
+TagFullBase makeFastTagFromList(List<int> tl) =>
     makeFastTag(tl[0], tl[1], tl[2], tl[3], tl[4], tl[5], tl[6], tl[7], tl[8], tl[9]);
 
-TagFull makeFastTag(int index, int vrIndex, int vmMin, int vmMax, int vmRank, int eType,
+TagFullBase makeFastTag(int index, int vrIndex, int vmMin, int vmMax, int vmRank, int
+eType,
     int ieLevel, int private, int retired, int deId) {
-  final tag = new TagFull(0)
+  final tag = new TagFullBase(0)
     ..index = index
     ..vrIndex = vrIndex
     ..vmMin = vmMin
@@ -112,7 +114,7 @@ TagFull makeFastTag(int index, int vrIndex, int vmMin, int vmMax, int vmRank, in
   return tag;
 }
 
-List<int> readFastTag(TagFull tag) {
+List<int> readFastTag(TagFullBase tag) {
   print('${tag.fieldsAsHex}');
   final index = tag.index;
   print('${tag.index}');
@@ -142,9 +144,9 @@ const List<List<int>> tags = const <List<int>>[
   const [0xFEDC, 0xBA, 0x98, 0x76, 0x54, 6, 6, 0x00, 0x00, 0x07]
 ];
 
-TagFull convertTag(int index, Tag tag) {
+TagFullBase convertTag(int index, Tag tag) {
   log.debug2('$index: $tag');
-  final t = new TagFull(0);
+  final t = new TagFullBase(0);
   final sIndex = TagX.tagCodeToIndex(tag.code);
   log.debug('index($index) sIndex($sIndex)');
   t.index = index;
@@ -159,7 +161,7 @@ TagFull convertTag(int index, Tag tag) {
   log.debug3('vrIndex: ${t.vrIndex}, tag.vr.index: ${tag.vr.index}');
 
   // VM
-  var vmRank = tag.vm.width;
+  var vmRank = tag.vm.columns;
   if (vmRank == 0) vmRank = 1;
   var vmMax = tag.vm.max;
   if (tag.vm.max == 0) vmMax = 1;
@@ -177,9 +179,9 @@ TagFull convertTag(int index, Tag tag) {
     ..deIdIndex = DeIdMethod.kKeep.index;
   log
     ..debug1('vmMin: ${t.vmMin}, vmMax: ${t.vmMax}, vmRank: ${t.vmRank}')
-    ..debug('$index: ${t.fields}');
+    ..debug('$index: ${t.tag}');
   if (index != t.index) log.error('Bad index($index) tag.index(${t.index}');
-  final tagx = new TagFull(t.fields);
+  final tagx = new TagFullBase(t.tag);
   log.debug('${tagx.index}: Tagx: ${tagx.info}');
   return t;
 }
@@ -223,7 +225,7 @@ void createIndexes() {
 //  for (int i = 0; i < tagMap.length; i++) {
   for (var i = 0; i < 2; i++) {
     log.debug('index: $i');
-    final t = new TagFull(0);
+    final t = new TagFullBase(0);
     final code = ptags[i].code;
     codesByIndex.add(code);
     final keyword = ptags[i].keyword;
@@ -240,7 +242,7 @@ void createIndexes() {
     final vm = ptags[i].vm;
     vmsByIndex.add(vm);
     log.debug('vm ${vm.id}: ${t.vmMin}, ${t.vmMax}, ${t.vmRank}');
-    t.vmRank = (vm.width == 0) ? 1 : vm.width;
+    t.vmRank = (vm.columns == 0) ? 1 : vm.columns;
     log.debug('vmRank: ${t.vmRank}');
     //   t.vmMin = (vm.min ;
     t

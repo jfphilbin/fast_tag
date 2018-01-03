@@ -29,6 +29,9 @@ dependencies:
   tag:
     path: C:/odw/sdk/tag
     version: ^0.6.5
+  vr:
+    path: C:/odw/sdk/vr
+    version: ^0.6.5
 
 dev_dependencies:
   benchmark_harness: ^1.0.4

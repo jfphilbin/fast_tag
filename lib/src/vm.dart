@@ -28,10 +28,10 @@ class VMx {
 
   /// The [rank] of the array of values. Both [min] and [max] must be
   /// evenly divisible by [rank]. That is [min] % [rank] == [max] %
-  /// [rank] == 0 must be [true].
+  /// [rank] == 0 must be _true_.
   final int rank;
 
-  /// Returns [true] if this is a VM used only with internal Tags.
+  /// Returns _true_ if this is a VM used only with internal Tags.
   final bool isPrivate;
 
   // Constructor

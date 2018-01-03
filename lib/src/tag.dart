@@ -15,23 +15,23 @@ import 'package:fast_tag/src/vr.dart';
 
 abstract class TagX<V> implements TagBase {
   @override
-  int get fields;
+  int get tag;
 
   //const TagX(this.fields);
 
-  /// Returns the DICOM Tag Code for [this] as a hexadecimal [String].
+  /// Returns the DICOM Tag Code for _this_ as a hexadecimal [String].
   String get asHex => get32BitHex(code);
 
-  /// Returns the Tag Code Group Number of [this].
+  /// Returns the Tag Code Group Number of _this_.
   int get group => code >> 16;
 
-  /// Returns the Tag Code Group Number of [this] as a hexadecimal [String].
+  /// Returns the Tag Code Group Number of _this_ as a hexadecimal [String].
   String get groupAsHex => get16BitHex(group);
 
-  /// Returns the Tag Code Element Number of [this].
+  /// Returns the Tag Code Element Number of _this_.
   int get elt => code & 0xFFF;
 
-  /// Returns the Tag Code Element Number of [this] as a hexadecimal [String].
+  /// Returns the Tag Code Element Number of _this_ as a hexadecimal [String].
   String get eltAsHex => get16BitHex(group);
 
   bool isValidVR(VRx vr, [Issues issues]) => vr.index == vrIndex;
@@ -39,7 +39,7 @@ abstract class TagX<V> implements TagBase {
       index >= 0 && index <= VRx.kCodes.length;
   bool isValidVRCode(int code, [Issues issues]) => VRx.isValidCode(code);
 
-  /// Returns [true] if [vList] has a valid length for [this].
+  /// Returns _true_ if [vList] has a valid length for _this_.
   bool isValidLength(Iterable<V> vList, [Issues issues]) {
     assert(vList != null);
     final length = vList.length;
@@ -49,7 +49,7 @@ abstract class TagX<V> implements TagBase {
         : invalidValuesLength(this, vList, issues);
   }
 
-  /// Returns [true] if [vList] is a valid values [List] for [this].
+  /// Returns _true_ if [vList] is a valid values [List] for _this_.
   //TODO: should _Note_: Checks all values in [vList], so [issues] will be complete.
   bool isValidValues(Iterable<V> vList, [Issues issues]) =>
       vList is List<V> && isValidLength(vList, issues) && _isValidValues(vList, issues);

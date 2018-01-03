@@ -13,7 +13,7 @@ import 'package:fast_tag/src/tag.dart';
 import 'package:fast_tag/src/vr.dart';
 
 /// A [NullValuesError] is thrown when an Values [List]
-/// should not be [null].
+/// should not be _null_.
 class NullValuesError extends Error {
   TagX tag;
 
@@ -26,7 +26,7 @@ class NullValuesError extends Error {
       'Attempt to create a $tag Element with a Null Values field.';
 }
 
-/// Called when an Element has a [null] Values field.
+/// Called when an Element has a _null_ Values field.
 ///
 /// This should never happen
 void nullValuesError<E>([TagX tag]) {

@@ -7,51 +7,57 @@
 import 'package:fast_tag/src/error.dart';
 import 'package:fast_tag/src/internal/tag_base.dart';
 
-/// Returns [true] if value [v] is in the specified range.
+/// Returns _true_ if value [v] is in the specified range.
 bool _inRange(int v, int min, int max) => v >= 0 && v <= 0xFFFF;
 
-class TagFull extends TagBase {
-  int _fields;
-
-  TagFull(this._fields);
-
+/// A class used to generate (create) Tag definitions.
+class TagFullBase extends TagBase {
   @override
-  int get fields => _fields;
+  int  tag;
+
+  TagFullBase(this.tag);
+
+//  @override
+//  int get tagDefinition => TagDefinition.lookup(tag);
 
   bool isValidIndex(int v) => _inRange(v, 0, 0xFFFF);
   int checkIndex(int v) => isValidIndex(v) ? v : invalidField('Index', v);
-  set index(int i) => _fields = ((checkIndex(i) << kIndexShift) & kIndexMask) | _fields;
+  set index(int i) =>
+      tag = ((checkIndex(i) << kIndexShift) & kIndexMask) | tag;
 
   // VR Setter
   set vrIndex(int i) =>
-      _fields = ((checkVRIndex(i) << kVRIndexShift) & kVRIndexMask) | _fields;
+      tag = ((checkVRIndex(i) << kVRIndexShift) & kVRIndexMask) | tag;
 
   // Value Multiplicity Setters
-  set vmMin(int i) => _fields = ((checkVMMin(i) << kVMMinShift) & kVMMinMask) | _fields;
+  set vmMin(int i) =>
+      tag = ((checkVMMin(i) << kVMMinShift) & kVMMinMask) | tag;
 
-  set vmMax(int i) => _fields = ((checkVMMax(i) << kVMMaxShift) & kVMMaxMask) | _fields;
+  set vmMax(int i) =>
+      tag = ((checkVMMax(i) << kVMMaxShift) & kVMMaxMask) | tag;
 
   set vmRank(int i) =>
-      _fields = ((checkVMRank(i) << kVMRankShift) & kVMRankMask) | _fields;
+      tag = ((checkVMColumns(i) << kVMColumnsShift) & kVMColumnsMask) | tag;
 
   // EType Index Setter
   set eTypeIndex(int i) =>
-      _fields = ((checkEType(i) << kETypeShift) & kETypeMask) | _fields;
+      tag = ((checkEType(i) << kETypeShift) & kETypeMask) | tag;
 
   set ieIndex(int i) =>
-      _fields = ((checkIELevel(i) << kIELevelShift) & kIELevelMask) | _fields;
+      tag = ((checkIELevel(i) << kIELevelShift) & kIELevelMask) | tag;
 
   set private(int i) =>
-      _fields = ((checkPrivate(i) << kPrivateShift) & kPrivateMask) | _fields;
+      tag = ((checkPrivate(i) << kPrivateShift) & kPrivateMask) | tag;
 
   set isPrivate(bool v) => v ? 1 : 0;
 
   set retired(int i) =>
-      _fields = ((checkRetired(i) << kRetiredShift) & kRetiredMask) | _fields;
+      tag = ((checkRetired(i) << kRetiredShift) & kRetiredMask) | tag;
 
   set isRetired(bool v) => retired = v ? 1 : 0;
 
-  set deIdIndex(int i) => _fields = ((checkDeId(i) << kDeIdShift) & kDeIdMask) | _fields;
+  set deIdIndex(int i) =>
+      tag = ((checkDeId(i) << kDeIdShift) & kDeIdMask) | tag;
 
   // **** Static Getters and Methods ****
 
@@ -74,10 +80,10 @@ class TagFull extends TagBase {
 
   static int getVMMax(int tag) => (tag & kVMMaxMask) >> kVMMaxShift;
 
-  static int setVMRank(int tag, int value) =>
-      ((value << kVMRankShift) & kVMRankMask) | tag;
+  static int setVMColumns(int tag, int value) =>
+      ((value << kVMColumnsShift) & kVMColumnsMask) | tag;
 
-  static int getVMRank(int tag) => (tag & kVMRankMask) >> kVMRankShift;
+  static int getVMColumns(int tag) => (tag & kVMColumnsMask) >> kVMColumnsShift;
 
   static int setEType(int tag, int value) => ((value << kETypeShift) & kETypeMask) | tag;
 
@@ -111,7 +117,7 @@ class TagFull extends TagBase {
     tag = setVRIndex(tag, vrIndex);
     tag = setVMMin(tag, vmMin);
     tag = setVMMax(tag, vmMax);
-    tag = setVMRank(tag, vmRank);
+    tag = setVMColumns(tag, vmRank);
     tag = setEType(tag, eType);
     tag = setIELevel(tag, ieLevel);
     tag = setPrivate(tag, private);
@@ -124,7 +130,7 @@ class TagFull extends TagBase {
     final vrIndex = getVRIndex(tag);
     final vmMin = getVMMin(tag);
     final vmMax = getVMMax(tag);
-    final vmRank = getVMRank(tag);
+    final vmRank = getVMColumns(tag);
     final eType = getEType(tag);
     final ieLevel = getIELevel(tag);
     final private = getPrivate(tag);
@@ -132,3 +138,4 @@ class TagFull extends TagBase {
     return [index, vrIndex, vmMin, vmMax, vmRank, eType, ieLevel, private, retired];
   }
 }
+

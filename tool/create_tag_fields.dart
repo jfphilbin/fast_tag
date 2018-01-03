@@ -40,14 +40,16 @@ void main() {
     print(vr);
     final vrIndex = tag.vrIndex;
     final vm = tag.vm;
-    final vmMin = vm.min * vm.width;
-    final vmMax = (vm.max == -1) ? 255 : vm.max * vm.width;
-    final vmRank = vm.width;
+    final vmMin = vm.min * vm.columns;
+    final vmMax = (vm.max == -1) ? 255 : vm.max * vm.columns;
+    final vmRank = vm.columns;
     final eType = EType.k3.index;
     final ieLevel = 4;
     final retired = tag.isRetired ? 1 : 0;
     final private = 0;
-    final fTag = [i, vrIndex, vmMin, vmMax, vmRank, eType, ieLevel, private, retired];
+    final fTag = <int>[
+      i, vrIndex, vmMin, vmMax, vmRank, eType, ieLevel, private, retired // No reformat
+    ];
     print(fTag);
 
     tagArray.add(fTag);

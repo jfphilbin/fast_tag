@@ -8,9 +8,9 @@ import 'package:fast_tag/src/internal/tag_base.dart';
 
 class Tagx extends TagBase {
   @override
-  final int fields;
+  final int tag;
 
-  const Tagx(this.fields);
+  const Tagx(this.tag);
 
   static const Tagx kSpectroscopyAcquisitionPhaseRows =
       const Tagx(0x001c0101001c036a);

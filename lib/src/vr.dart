@@ -12,15 +12,15 @@ import 'package:fast_tag/src/item.dart';
 import 'package:fast_tag/src/issues.dart';
 
 abstract class VRx<T> {
-  /// The [keyword] for [this].
+  /// The [keyword] for _this_.
   final String keyword;
 
-  /// The [index] for [this].
+  /// The [index] for _this_.
   final int index;
 
   const VRx._(this.keyword, this.index);
 
-  /// The 16-bit code of [this].
+  /// The 16-bit code of _this_.
   int get code;
 
   /// The size of value in bytes.
